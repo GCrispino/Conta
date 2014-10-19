@@ -7,6 +7,12 @@ using namespace std;
 
 //int qtdmax = 100;
 
+ostream &operator << (ostream &output,const Conta &c){
+	output << c.numero;
+	
+	return output;
+}
+
 Conta::Conta(string nome, int numero, string senha, float saldo)
 :nome(nome), numero(numero), senha(senha), saldo(saldo)
 {
@@ -32,6 +38,9 @@ Conta::Conta(string nome, int numero, string senha, float saldo)
 		
 	this->noperacoes[0] = 0;
 	this->noperacoes[1] = 0;
+	
+	this->historico[0] = NULL;
+	this->historico[1] = NULL;
 }
 
 Conta::Conta(Conta &c){//falta fazer a cópia do ponteiro!
@@ -39,12 +48,49 @@ Conta::Conta(Conta &c){//falta fazer a cópia do ponteiro!
 	this->numero = c.numero;
 	this->senha = c.senha;
 	this->saldo = c.saldo;
+	
+	this->noperacoes[0] = c.noperacoes[0];
+	this->noperacoes[1] = c.noperacoes[1];
+	
+	//"Cópia" dos ponteiros
+	int i;
+	
+	this->historico[0] = new float [c.noperacoes[0]];
+	for (i = 0;i < c.noperacoes[0];i++)
+		this->historico[0][i] = c.historico[0][i];
+	
+	this->historico[1] = new float [c.noperacoes[1]];
+	for (i = 0;i < c.noperacoes[1];i++)
+		this->historico[1][i] = c.historico[1][i];
 }
 
 Conta::~Conta()
 {
 	delete [] this->historico[0];
 	delete [] this->historico[1];
+}
+
+Conta Conta::operator =(const Conta &c){
+	this->nome = c.nome;
+	this->numero = c.numero;
+	this->senha = c.senha;
+	this->saldo = c.saldo;
+	
+	this->noperacoes[0] = c.noperacoes[0];
+	this->noperacoes[1] = c.noperacoes[1];
+	
+	//"Cópia" dos ponteiros
+	int i;
+	
+	this->historico[0] = new float [c.noperacoes[0]];
+	for (i = 0;i < c.noperacoes[0];i++)
+		this->historico[0][i] = c.historico[0][i];
+	
+	this->historico[1] = new float [c.noperacoes[1]];
+	for (i = 0;i < c.noperacoes[1];i++)
+		this->historico[1][i] = c.historico[1][i];
+	
+	return *this;
 }
 
 void Conta::info(){
@@ -66,7 +112,7 @@ void Conta::registraOperacao(int tipo, float valor){
 	for (i = 0;i < noperacoes[tipo];i++)
 		aux[i] = this->historico[tipo][i];
 		
-	delete (Conta::historico[tipo]);
+	delete [] this->historico[tipo];
 	
 	this->historico[tipo] = new float[++(this->noperacoes[tipo])];
 	
@@ -86,26 +132,25 @@ void Conta::imprimeHistorico(){
 		cout<<endl<<"Nenhuma operacao realizada na conta!!";
 	else if(this->noperacoes[0] == 0 ){
 		cout<<endl<<"Nenhum saque realizado na conta!!";
-		getch();
 		cout<<endl<<" Pagamentos mais recentes: ";
-		for (int i = this->noperacoes[1];i >= 0;i++)
-			cout<<endl<<"     R$"<<this->historico[1][i]<<" ";
+		cout<<endl<<" "<<this->noperacoes[0]<<" "<<this->noperacoes[1];
+		for (int i = this->noperacoes[1];i > 0;i--)
+			cout<<endl<<"     R$"<<this->historico[1][i-1]<<" ";
 	}
 	else if(this->noperacoes[1] == 0 ){
 		cout<<endl<<"Nenhum pagamento realizado na conta!!";
-		getch();
 		cout<<endl<<" Saques mais recentes: ";
-		for (int i = this->noperacoes[0];i >= 0;i++)
-			cout<<endl<<"     R$"<<this->historico[0][i]<<" ";
+		for (int i = this->noperacoes[0];i > 0;i--)
+			cout<<endl<<"     R$"<<this->historico[0][i-1]<<" ";
 	}
 	else{
 		cout<<endl<<" Saques mais recentes: ";
-		for (int i = this->noperacoes[0];i >= 0;i++)
-			cout<<endl<<"     R$"<<this->historico[0][i]<<" ";
+		for (int i = this->noperacoes[0];i > 0;i--)
+			cout<<endl<<"     R$"<<this->historico[0][i-1]<<" ";
 	
 		cout<<endl<<" Pagamentos mais recentes: ";
-		for (int i = this->noperacoes[1];i >= 0;i++)
-			cout<<endl<<"     R$"<<this->historico[1][i]<<" ";
+		for (int i = this->noperacoes[1];i > 0;i--)
+			cout<<endl<<"     R$"<<this->historico[1][i-1]<<" ";
 	}
 }
 
